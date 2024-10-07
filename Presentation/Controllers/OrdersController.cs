@@ -54,4 +54,14 @@ public class OrdersController : ControllerBase
 
         return NoContent();
     }
+    
+    [HttpGet("GetStatus/{id:int}")]
+    public async Task<ActionResult<string>> GetOrderStatus(int id)
+    {
+        var order = await _orderService.GetOrder(id);
+        if (order == null)
+            return NotFound();
+
+        return Ok(order.Status.ToString());
+    }
 }

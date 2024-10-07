@@ -65,7 +65,7 @@ public class OrderEventService : IOrderService
         {
             var aggregate = _factory.CreateOrderAggregate(orderId);
 
-            var result = aggregate.Adapt<OrdersStatusDto>();
-            return Task.FromResult(result);
+            var result = aggregate.Adapt<OrdersStatusDto?>();
+            return result is null ? null : Task.FromResult(result);
         }
 }

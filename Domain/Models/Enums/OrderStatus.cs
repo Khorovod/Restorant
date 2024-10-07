@@ -8,5 +8,6 @@
         Delivering = 3,
         Delivered = 4,
         Canceled = 5,
+        Changed = 6,
     }
 }

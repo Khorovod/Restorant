@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Orders.Infrastructure.DbContexts;
+using Orders.Infrastructure.EventStores;
 using Orders.Infrastructure.Repositories;
 
 namespace Orders.Infrastructure;
@@ -10,5 +11,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddDbContext<OrderDbContext>(options => options.UseInMemoryDatabase("Orders"));
         services.AddScoped<IOrderRepository, OrderRepository>();
+        
+        services.AddSingleton<IEventStore, InMemoryEventStore>();
     }
 }

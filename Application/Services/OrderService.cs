@@ -54,7 +54,7 @@ namespace Orders.Application.Services
             return result?.TotalCost ?? 0;
         }
 
-        public async Task<List<OrdersStatusDto>?> GetOrders()
+        public async Task<List<OrdersStatusDto>> GetOrders()
         {
             var query = new GetAllOrdersQuery();
             var result = await _sender.Send(query);
@@ -62,7 +62,7 @@ namespace Orders.Application.Services
             return result.Select(o => o.Adapt<OrdersStatusDto>()).ToList();
         }
 
-        public async Task<OrdersStatusDto?> GetOrder(int orderId)
+        public async Task<OrdersStatusDto>? GetOrder(int orderId)
         {
             var command = new GetOrderQuery(orderId);
             var result = await _sender.Send(command);

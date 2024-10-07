@@ -13,7 +13,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddStorage();
 builder.Services.AddMediatR(config =>
 {
-config.RegisterServicesFromAssembly(typeof(Program).Assembly);
+    config.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
 builder.Services.AddOrderService();
 

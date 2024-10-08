@@ -3,9 +3,9 @@ using MediatR;
 using Orders.Application.EventCommands.Complete;
 using Orders.Application.EventCommands.Create;
 using Orders.Application.EventCommands.Update;
-using Orders.Application.Factories;
 using Orders.Domain.Dtos;
 using Orders.Domain.Models.Enums;
+using Orders.Infrastructure.Projections;
 using Orders.Presentation.Api;
 
 namespace Orders.Application.Services;
@@ -13,12 +13,12 @@ namespace Orders.Application.Services;
 public class OrderEventService : IOrderService
 {
         private readonly ISender _sender;
-        private readonly OrderAggregateFactory _factory;
+        private readonly IOrdersProjection _projection;
 
-        public OrderEventService(ISender sender, OrderAggregateFactory factory)
+        public OrderEventService(ISender sender, IOrdersProjection projection)
         {
             _sender = sender;
-            _factory = factory;
+            _projection = projection;
         }
 
         public Task<int> CreateOrder(OrderRequest request)
@@ -41,31 +41,45 @@ public class OrderEventService : IOrderService
 
         public Task<OrderStatus> CheckOrderStatus(int orderId)
         {
-            var aggregate = _factory.CreateOrderAggregate(orderId);
+            var aggregate = _projection.GetOrder(orderId);
+
+            if (aggregate == null)
+            {
+                throw new ArgumentException(nameof(orderId));
+            }
             
             return Task.FromResult(aggregate.Status);
         }
 
         public Task<decimal> GetTotalCost(int orderId)
         {
-            var aggregate = _factory.CreateOrderAggregate(orderId);
+            var aggregate = _projection.GetOrder(orderId);
+            
+            if (aggregate == null)
+            {
+                throw new ArgumentException(nameof(orderId));
+            }
             
             return Task.FromResult(aggregate.TotalPrice);
         }
 
         public Task<List<OrdersStatusDto>> GetOrders()
         {
-            var orders = _factory.CreateAllOrderAggregates();
+            var orders = _projection.GetOrders().ToList();
 
             var result = orders.Select(o => o.Adapt<OrdersStatusDto>());
             return Task.FromResult(result.ToList());
         }
 
-        public Task<OrdersStatusDto>? GetOrder(int orderId)
+        public Task<OrdersStatusDto> GetOrder(int orderId)
         {
-            var aggregate = _factory.CreateOrderAggregate(orderId);
-
-            var result = aggregate.Adapt<OrdersStatusDto?>();
-            return result is null ? null : Task.FromResult(result);
+            var aggregate = _projection.GetOrder(orderId);
+            
+            if (aggregate == null)
+            {
+                throw new ArgumentException(nameof(orderId));
+            }
+            
+            return Task.FromResult(aggregate.Adapt<OrdersStatusDto>());
         }
 }
